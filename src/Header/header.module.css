@@ -1,0 +1,37 @@
+.Container {
+  padding: 15px 25px;
+  display: flex;
+  background-color: #e5d9f2;
+  align-items: center;
+  justify-content: space-between;
+}
+.InputContainer {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+.InputContainer input {
+  outline: none;
+  width: 400px;
+  padding: 6px;
+  border: none;
+  border-radius: 4px;
+}
+.addBtn {
+  padding: 5px;
+  border: none;
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -ms-border-radius: 50%;
+  -o-border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  background-color: white;
+}
+.searchTitle {
+  font-weight: 600;
+  color: #7371fc;
+  font-size: 1rem;
+}
