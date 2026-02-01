@@ -1,7 +1,7 @@
 .Container {
   padding: 15px 25px;
   display: flex;
-  background-color: #e5d9f2;
+  background-color: #bbdefb;
   align-items: center;
   justify-content: space-between;
 }
@@ -18,20 +18,39 @@
   border-radius: 4px;
 }
 .addBtn {
-  padding: 5px;
+  padding: 6px 10px;
   border: none;
-  border-radius: 50%;
-  -webkit-border-radius: 50%;
-  -moz-border-radius: 50%;
-  -ms-border-radius: 50%;
-  -o-border-radius: 50%;
+  border-radius: 14px;
+  -webkit-border-radius: 14px;
+  -moz-border-radius: 14px;
+  -ms-border-radius: 14px;
+  -o-border-radius: 14px;
   display: flex;
   justify-content: center;
   cursor: pointer;
   background-color: white;
+  align-items: center;
 }
 .searchTitle {
   font-weight: 600;
-  color: #7371fc;
+  color: #1565c0;
   font-size: 1rem;
+}
+.buttonContainer {
+  display: flex;
+  gap: 20px;
+}
+.deleteBtn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 14px;
+  -webkit-border-radius: 14px;
+  -moz-border-radius: 14px;
+  -ms-border-radius: 14px;
+  -o-border-radius: 14px;
+  display: flex;
+  justify-content: center;
+  cursor: pointer;
+  background-color: white;
+  align-items: center;
 }

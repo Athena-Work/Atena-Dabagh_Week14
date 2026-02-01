@@ -1,10 +1,10 @@
-//Components
-import Header from "./Header/header";
+//Component
+import ContactPage from "./contactPage/contactPage";
 
 function App() {
   return (
     <>
-      <Header />
+      <ContactPage />
     </>
   );
 }
