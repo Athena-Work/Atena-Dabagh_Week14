@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { ContactContext } from "../context/infoProvider";
 
 // Components
 import AddContact from "../AddContact/addContact";
@@ -12,8 +13,15 @@ import EditContactModal from "../editContactModal/editContactModal";
 import styles from "./contactPage.module.css";
 
 const ContactPage = () => {
+  const {
+    contacts,
+    loading,
+    deleteContact,
+    deleteManyContacts,
+    updateContact,
+  } = useContext(ContactContext);
+
   const [search, setSearch] = useState("");
-  const [addContact, setAddContact] = useState([]);
   const [openAddContact, setOpenAddContact] = useState(false);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -40,15 +48,15 @@ const ContactPage = () => {
     return () => clearTimeout(t);
   }, [toastOpen]);
 
-  const filteredContacts = addContact.filter((c) => {
+  const filteredContacts = contacts.filter((c) => {
     const q = (search || "").trim().toLowerCase();
     if (!q) return true;
     return (
-      c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q)
+      (c.name || "").toLowerCase().includes(q) ||
+      (c.email || "").toLowerCase().includes(q)
     );
   });
 
-  // bulk delete button logic
   const handleBulkDeleteClick = () => {
     if (!deleteCheckBox) {
       setDeleteCheckBox(true);
@@ -75,24 +83,35 @@ const ContactPage = () => {
     setPendingDeleteId(null);
   };
 
-  const confirmDelete = () => {
-    setAddContact((prev) => prev.filter((c) => c.id !== pendingDeleteId));
-    setIsDeleteModalOpen(false);
-    setPendingDeleteId(null);
-    showToast("Contact deleted...");
+  const confirmDelete = async () => {
+    try {
+      await deleteContact(pendingDeleteId);
+      showToast("Contact deleted...");
+    } catch (e) {
+      console.log(e);
+      showToast("Delete failed!");
+    } finally {
+      setIsDeleteModalOpen(false);
+      setPendingDeleteId(null);
+    }
   };
 
   const cancelBulk = () => setIsBulkDeleteModalOpen(false);
 
-  const deleteBulk = () => {
+  const deleteBulk = async () => {
     const count = idList.length;
 
-    setAddContact((prev) => prev.filter((c) => !idList.includes(c.id)));
-    setIdList([]);
-    setIsBulkDeleteModalOpen(false);
-    setDeleteCheckBox(false);
-
-    showToast(`${count} contact(s) deleted...`);
+    try {
+      await deleteManyContacts(idList);
+      showToast(`${count} contact(s) deleted...`);
+    } catch (e) {
+      console.log(e);
+      showToast("Bulk delete failed!");
+    } finally {
+      setIdList([]);
+      setIsBulkDeleteModalOpen(false);
+      setDeleteCheckBox(false);
+    }
   };
 
   const requestEdit = (id) => {
@@ -105,16 +124,22 @@ const ContactPage = () => {
     setPendingEditId(null);
   };
 
-  const saveEdit = (updatedContact) => {
-    setAddContact((prev) =>
-      prev.map((c) => (c.id === updatedContact.id ? updatedContact : c)),
-    );
-    setIsEditModalOpen(false);
-    setPendingEditId(null);
-    showToast("Contact updated...");
+  const saveEdit = async (updatedContact) => {
+    try {
+      await updateContact(updatedContact.id, updatedContact);
+      showToast("Contact updated...");
+    } catch (e) {
+      console.log(e);
+      showToast("Update failed!");
+    } finally {
+      setIsEditModalOpen(false);
+      setPendingEditId(null);
+    }
   };
 
-  const contactForEdit = addContact.find((c) => c.id === pendingEditId);
+  const contactForEdit = contacts.find(
+    (c) => String(c.id) === String(pendingEditId)
+  );
 
   return (
     <div className={styles.Container}>
@@ -128,10 +153,9 @@ const ContactPage = () => {
         idList={idList}
       />
 
-      <AddContact
-        setAddContact={setAddContact}
-        openAddContact={openAddContact}
-      />
+      {loading && <p style={{ padding: 12 }}>Loading...</p>}
+
+      <AddContact openAddContact={openAddContact} />
 
       <ContactList
         addContact={filteredContacts}

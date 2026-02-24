@@ -1,12 +1,16 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { ContactContext } from "../context/infoProvider";
 
 // Style
 import styles from "./addContact.module.css";
 
-const AddContact = ({ setAddContact, openAddContact }) => {
+const AddContact = ({ openAddContact }) => {
+  const { createContact } = useContext(ContactContext);
+
   const [toastOpen, setToastOpen] = useState(false);
   const [toastClosing, setToastClosing] = useState(false);
   const [toastText, setToastText] = useState("");
+
   const [error, setError] = useState({
     name: "",
     email: "",
@@ -14,6 +18,7 @@ const AddContact = ({ setAddContact, openAddContact }) => {
     phone: "",
     all: "",
   });
+
   const [information, setInformation] = useState({
     name: "",
     email: "",
@@ -29,8 +34,8 @@ const AddContact = ({ setAddContact, openAddContact }) => {
       ...prev,
       [fieldName]: value,
     }));
-    setError((prev) => ({ ...prev, [fieldName]: "" }));
-    setError((prev) => ({ ...prev, all: "" }));
+
+    setError((prev) => ({ ...prev, [fieldName]: "", all: "" }));
   };
 
   const showToast = (text) => {
@@ -53,11 +58,12 @@ const AddContact = ({ setAddContact, openAddContact }) => {
     return () => clearTimeout(t);
   }, [toastOpen]);
 
-  const addHandler = () => {
+  const addHandler = async () => {
     const nameTrim = information.name.trim();
     const emailTrim = information.email.trim();
     const jobTrim = information.job.trim();
     const phoneTrim = information.phone.trim();
+
     const newErrors = {
       name: "",
       email: "",
@@ -66,14 +72,15 @@ const AddContact = ({ setAddContact, openAddContact }) => {
       all: "",
     };
 
-    //Handle all inputs
+    // Handle all inputs
     if (!nameTrim && !emailTrim && !phoneTrim && !jobTrim) {
       newErrors.all = "Fields are empty...";
       setError(newErrors);
       return;
     }
+
+    // Name
     if (!nameTrim) {
-      //Name Input Error Handeling
       newErrors.name = "The name and last name field is empty...";
       setError(newErrors);
       return;
@@ -83,7 +90,7 @@ const AddContact = ({ setAddContact, openAddContact }) => {
       return;
     }
 
-    //Email Input Error Handeling
+    // Email
     if (!emailTrim) {
       newErrors.email = "The email field is empty...";
       setError(newErrors);
@@ -94,14 +101,14 @@ const AddContact = ({ setAddContact, openAddContact }) => {
       return;
     }
 
-    //Job Input Error Handeling
+    // Job
     if (!jobTrim) {
       newErrors.job = "The job field is Empty...";
       setError(newErrors);
       return;
     }
 
-    //Phone Input Error Handeling
+    // Phone
     if (!phoneTrim) {
       newErrors.phone = "The phone field is Empty...";
       setError(newErrors);
@@ -112,19 +119,22 @@ const AddContact = ({ setAddContact, openAddContact }) => {
       return;
     }
 
-    showToast("User added successfully!");
-
+    // Create
     const newContact = {
-      ...information,
-      id: Date.now(),
+      name: nameTrim,
+      email: emailTrim,
+      job: jobTrim,
+      phone: phoneTrim,
     };
-    setAddContact((prev) => [...prev, newContact]);
-    setInformation({
-      name: "",
-      email: "",
-      job: "",
-      phone: "",
-    });
+
+    try {
+      await createContact(newContact);
+      showToast("User added successfully!");
+      setInformation({ name: "", email: "", job: "", phone: "" });
+    } catch (e) {
+      console.log("Create contact error:", e);
+      showToast("Server error! Is json-server running?");
+    }
   };
 
   return (
@@ -137,8 +147,7 @@ const AddContact = ({ setAddContact, openAddContact }) => {
               onClick={closeToast}
               className={`${styles.ToastNotif} ${
                 toastClosing ? styles.toastOut : styles.toastIn
-              }`}
-            >
+              }`}>
               {toastText}
             </button>
           )}
@@ -166,6 +175,7 @@ const AddContact = ({ setAddContact, openAddContact }) => {
             />
             {error.email && <div className={styles.error}>{error.email}</div>}
           </div>
+
           <div className={styles.inputError}>
             <input
               type="text"
@@ -176,6 +186,7 @@ const AddContact = ({ setAddContact, openAddContact }) => {
             />
             {error.job && <div className={styles.error}>{error.job}</div>}
           </div>
+
           <div className={styles.inputError}>
             <input
               type="tel"
@@ -186,6 +197,7 @@ const AddContact = ({ setAddContact, openAddContact }) => {
             />
             {error.phone && <div className={styles.error}>{error.phone}</div>}
           </div>
+
           {error.all && <div className={styles.error}>{error.all}</div>}
         </div>
 
